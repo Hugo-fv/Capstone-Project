@@ -5,12 +5,12 @@
 # Por: Victor Hugo Flores Vargas
 # Fecha: 22 de febrero del 2022
 
-# El siguiente codigo se utiliza en la Raspberry Pi para la estación
+# El siguiente codigo se utiliza en la Raspberry Pi para la estacion
 # de autobuses que se desee supervisar. Se coordinan dos sensores 
 # que permiten el correcto funcionamiento del sistema: el sensor
 # de distancia Ultrasonico y la antena RFID. 
 
-# La lógica de programación es sencilla. Primero, se comprueba que 
+# La logica de programacion es sencilla. Primero, se comprueba que 
 # haya un objeto delante (simulando la presencia de un autobus);
 # posteriormente, se comprueba que haya un identificador RFID
 # valido cerca de la antena RFID, para despues almacenar los datos 
@@ -18,7 +18,7 @@
 # se haya retirado, para posteriormente enviar el objeto en forma de JSON
 # por MQTT.
 
-# Diagrama de conexión
+# Diagrama de conexion
 
 ##  RC522 -> Raspberry Pi B3+
 
@@ -37,7 +37,7 @@
     ECHO ->  Pin 31 # IMPORTANTE: Se debe realizar un divisor de voltaje
     GND  ->  GND
 
-Nota: Para mas información sobre el divisor de voltaje, consultar el contenido
+Nota: Para mas informacion sobre el divisor de voltaje, consultar el contenido
 del curso pertinentes.
 """
 #Librerias 
@@ -46,6 +46,7 @@ import MFRC522  #Libreria que nos facilita el manejo del lector RC522
 import signal
 import time #LIbreria que nos permite manejar el tiempo
 import json #Liberia que permite leer y transformar JSON
+import jsonpickle #Libreria que nos permite transformar objetos a JSON 
 import paho.mqtt.client as mqtt #Libreria para el uso de MQTT
 
 #Definir el tipo numerado de los pines
@@ -59,9 +60,7 @@ client = mqtt.Client() #Objeto que maneja la mensajeria por MQTT
 #Clases
 
 class Autobus (): #Clase vacia que se puede serializar como JSON
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, 
-            sort_keys=True, indent=4)
+    pass
 
 InfoAutobus = Autobus() #Variable de tipo Autobus
 InfoAutobus.id_estacion = 510 #La estacion es constante
@@ -142,7 +141,7 @@ while KeepGoing: #Loop principal
                 id = str(uid[0]) + str(uid[1]) + str(uid[2]) + str(uid[3]) #Guardamos el UID en una variable
                 
                 if BufferID != id: # Si la UID que guardamos es diferente a la registrada anteriormente, entonces
-                    BanderaRegistro = True # Activamos la bandera que indica que ya se registró esa UID
+                    BanderaRegistro = True # Activamos la bandera que indica que ya se registro esa UID
                     BufferID = id # Guardamos en el buffer la nueva ID
                     InfoAutobus.h_entrada= time.time() # Obtenemos la hora de entrada y la guardamos
                     InfoAutobus.id_autobus = id # Guardamos la UID en el objeto
@@ -154,7 +153,7 @@ while KeepGoing: #Loop principal
     elif MedirDistancia() > UmbralDistancia and BanderaRegistro == True : #Si no hay objeto y ya se ha registrado una tarjeta
         BanderaRegistro = False # No se ha registrado una UID
         InfoAutobus.h_salida = time.time() # Guardamos la hora de salida del autobus
-        BufferJson = json.dumps(InfoAutobus.toJSON()) # Guardamos en un Buffer el JSON generado
+        BufferJson = jsonpickle.encode(InfoAutobus, unpicklable=False) # Guardamos en un Buffer el JSON generado
         print(BufferJson) # Verificamos por terminal el JSON generado
         client.publish('raspb/autobuses', BufferJson) # Publicamos el JSON en un tema de MQTT.
 
