@@ -1,2 +1,2 @@
-# web-server
-Repositorio de la página web del centro de control de camiones.
+# Captone Project
+Repositorio del projecto Capstone de Codigo IOT
