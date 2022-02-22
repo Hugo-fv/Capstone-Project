@@ -4,10 +4,38 @@
 # de datos por MQTT
 # Por: Victor Hugo Flores Vargas
 # Fecha: 22 de febrero del 2022
-# 
-# El siguiente codigo se utiliza en 
-#
-#
+
+# El siguiente codigo se utiliza en la Raspberry Pi para la estación
+# de autobuses que se desee supervisar. Se coordinan dos sensores 
+# que permiten el correcto funcionamiento del sistema: el sensor
+# de distancia Ultrasonico y la antena RFID. 
+
+# La lógica de programación es sencilla. Primero, se comprueba que 
+# haya un objeto delante (simulando la presencia de un autobus);
+# posteriormente, se comprueba que haya un identificador RFID
+# valido cerca de la antena RFID, para despues almacenar los datos 
+# mas relevantes en un objeto. Por ultimo, se comprueba que el objeto 
+# se haya retirado, para posteriormente enviar el objeto en forma de JSON
+# por MQTT.
+
+# Diagrama de conexión
+
+##  RC522 -> Raspberry Pi B3+
+
+    SDA  ->  Pin 24
+    SCK  ->  Pin 23
+    MOSI ->  Pin 19
+    MISO ->  Pin 21
+    GND  ->  GND
+    RST  ->  Pin 22
+    3.3V ->  3.3V
+
+##  HC-SR04 -> Raspberry Pi B3+
+
+    Vcc  ->  5V
+    TRIG ->  Pin 29
+    ECHO ->  Pin 31
+    GND  ->  GND
 
 """
 #Librerias 
@@ -37,13 +65,16 @@ InfoAutobus = Autobus() #Variable de tipo Autobus
 InfoAutobus.id_estacion = 510 #La estacion es constante
 
 #Variables
+
 BufferID = '' #Buffer para guardar temporalmente la id de la RFID. Comienza vacio
 BanderaRegistro = False #Bandera que indica si ya se verifico la tarjeta
 KeepGoing = True #Variable que controla el bucle principal
 BufferJson = '' #Buffer que almacena el JSON antes de mandarlo por MQTT
+BrokerMQTT = "3.126.191.185"
+UmbralDistancia = 7.0 #Distancia maxima (cm) para decir si hay un objeto delante del sensor
 
 ##Variables del sensor Ultrasonico
-GPIO.setmode(GPIO.BOARD)
+
 GPIO_TRIGGER = 29 #Trigger o disparador
 GPIO_ECHO = 31 #Respuesta
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT) #El disparador es una salida.
@@ -90,34 +121,42 @@ def end_read(signal,frame):
 #Definimos a la funcion end_read como el final del programa
 signal.signal(signal.SIGINT, end_read)
 
+# Conectamos con el broker MQTT (HiveMQ)
+client.connect(BrokerMQTT, 1883, 60)
+## NOTA: si se usa un broker publico, se debe actualizar la direccion
+## constantemente
 
-client.connect("3.126.191.185", 1883, 60)
 #Programa Principal
-
 while KeepGoing: #Loop principal
 
-    if MedirDistancia() < 6 : #Si hay un objeto, entonces
-        (status,TagType) = RFID.MFRC522_Request(RFID.PICC_REQIDL) #
-        if status == RFID.MI_OK:
-            print('Tarjeta encontrada')
-            (status,uid) = RFID.MFRC522_Anticoll()
-            if status == RFID.MI_OK:
-                id = str(uid[0]) + str(uid[1]) + str(uid[2]) + str(uid[3])
-                if BufferID != id:
-                    BanderaRegistro = True
-                    BufferID = id
-                    InfoAutobus.h_entrada= time.time()
-                    InfoAutobus.id_autobus = id
-                else:
+    if MedirDistancia() < UmbralDistancia : #Si hay un objeto, entonces
+        (status,TagType) = RFID.MFRC522_Request(RFID.PICC_REQIDL) # Comprobamos si hay una tarjeta
+        
+        if status == RFID.MI_OK: #Si hay una tarjeta valida, entonces
+            print('Tarjeta encontrada') 
+            (status,uid) = RFID.MFRC522_Anticoll() #Tratamos de obtener el UID de la tarjeta
+            
+            if status == RFID.MI_OK: #Si pudimos obtener el UID de la tarjeta, entonces
+                id = str(uid[0]) + str(uid[1]) + str(uid[2]) + str(uid[3]) #Guardamos el UID en una variable
+                
+                if BufferID != id: # Si la UID que guardamos es diferente a la registrada anteriormente, entonces
+                    BanderaRegistro = True # Activamos la bandera que indica que ya se registró esa UID
+                    BufferID = id # Guardamos en el buffer la nueva ID
+                    InfoAutobus.h_entrada= time.time() # Obtenemos la hora de entrada y la guardamos
+                    InfoAutobus.id_autobus = id # Guardamos la UID en el objeto
+                
+                else: # Si la UID es igual a la del buffer...
                     print('Misma tarjeta. Intente de nuevo')
-                    time.sleep(2)
+                    time.sleep(2) # Pausa bloqueante necesaria (2 segundos)
     
-    elif MedirDistancia() > 6 and BanderaRegistro == True : #Si no hay objeto y ya se ha registrado una tarjeta
-        BanderaRegistro = False
-        InfoAutobus.h_salida = time.time()
-        BufferJson = json.dumps(InfoAutobus.toJSON())
-        print(BufferJson)
-        client.publish('raspb/autobuses', BufferJson)
+    elif MedirDistancia() > UmbralDistancia and BanderaRegistro == True : #Si no hay objeto y ya se ha registrado una tarjeta
+        BanderaRegistro = False # No se ha registrado una UID
+        InfoAutobus.h_salida = time.time() # Guardamos la hora de salida del autobus
+        BufferJson = json.dumps(InfoAutobus.toJSON()) # Guardamos en un Buffer el JSON generado
+        print(BufferJson) # Verificamos por terminal el JSON generado
+        client.publish('raspb/autobuses', BufferJson) # Publicamos el JSON en un tema de MQTT.
+
+#Fin del programa principal.
 
 
 
