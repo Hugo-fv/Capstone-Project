@@ -33,10 +33,12 @@
 ##  HC-SR04 -> Raspberry Pi B3+
 
     Vcc  ->  5V
-    TRIG ->  Pin 29
-    ECHO ->  Pin 31
+    TRIG ->  Pin 29 
+    ECHO ->  Pin 31 # IMPORTANTE: Se debe realizar un divisor de voltaje
     GND  ->  GND
 
+Nota: Para mas información sobre el divisor de voltaje, consultar el contenido
+del curso pertinentes.
 """
 #Librerias 
 import RPi.GPIO as GPIO #Libreria que permite usar los pines
