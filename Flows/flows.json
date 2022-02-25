@@ -1,0 +1,419 @@
+[
+    {
+        "id": "5accdb4228d7ea1e",
+        "type": "tab",
+        "label": "Flow 4",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "650aa3941c4d2ca5",
+        "type": "mqtt in",
+        "z": "5accdb4228d7ea1e",
+        "name": "",
+        "topic": "raspb/autobuses",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "31f7c2e.96d49be",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "x": 120,
+        "y": 200,
+        "wires": [
+            [
+                "55026214d9dbd4c4"
+            ]
+        ]
+    },
+    {
+        "id": "95c4f15bea097740",
+        "type": "function",
+        "z": "5accdb4228d7ea1e",
+        "name": "",
+        "func": "// Recolectamos la informacion obtenida del JSON generado por la Raspberry Pi\nvar Estacion = msg.payload.id_estacion;\nvar Bus = msg.payload.id_autobus;\nvar Entrada = msg.payload.h_entrada;\nvar Salida = msg.payload.h_salida;\nvar msg2 = {};\n// Insertamos en la BD \ntopic = \"INSERT INTO Horario_ruta VALUES \"\ntopic = topic + `(${Bus}, ${Estacion}, ${Entrada}, ${Salida})`\nmsg2.topic = topic;\nreturn msg2",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 200,
+        "wires": [
+            [
+                "e130bdd7135c7ae6"
+            ]
+        ]
+    },
+    {
+        "id": "e130bdd7135c7ae6",
+        "type": "mysql",
+        "z": "5accdb4228d7ea1e",
+        "mydb": "dac54363429d7483",
+        "name": "",
+        "x": 720,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "55026214d9dbd4c4",
+        "type": "json",
+        "z": "5accdb4228d7ea1e",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 330,
+        "y": 200,
+        "wires": [
+            [
+                "95c4f15bea097740"
+            ]
+        ]
+    },
+    {
+        "id": "26a2b377014537f8",
+        "type": "inject",
+        "z": "5accdb4228d7ea1e",
+        "name": "Fetch UID",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "30",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 380,
+        "wires": [
+            [
+                "fa556ae54b3deb72"
+            ]
+        ]
+    },
+    {
+        "id": "fa556ae54b3deb72",
+        "type": "function",
+        "z": "5accdb4228d7ea1e",
+        "name": "",
+        "func": "//Creamos una query para pedir las UID de los camiones registrados\nvar query\nquery = 'SELECT uid FROM DatosGenerales'\nmsg.topic = query\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 380,
+        "wires": [
+            [
+                "13ec702642755ea6"
+            ]
+        ]
+    },
+    {
+        "id": "13ec702642755ea6",
+        "type": "mysql",
+        "z": "5accdb4228d7ea1e",
+        "mydb": "dac54363429d7483",
+        "name": "",
+        "x": 480,
+        "y": 380,
+        "wires": [
+            [
+                "91717e81e12572f9"
+            ]
+        ]
+    },
+    {
+        "id": "91717e81e12572f9",
+        "type": "function",
+        "z": "5accdb4228d7ea1e",
+        "name": "",
+        "func": "//Guardamos las ID en un array unidimensional, facilitando su lectura\nvar size = msg.payload.length;\nvar arrayID = [];\nfor (var i = 0; i<size; i++){\n    arrayID[i] = msg.payload[i].uid;\n}\n\n//Guardamos el arreglo y el tamaño como variables en todo el flow\nflow.set('arregloID', arrayID)\nflow.set('arregloSize', size)\n\nmsg.payload = arrayID\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "293636bfe744d953",
+        "type": "function",
+        "z": "5accdb4228d7ea1e",
+        "name": "",
+        "func": "//Obtenemos las ID y el tamaño del arreglo que se encuentran dentro del flow\nvar ID = flow.get('arregloID')\nvar size = flow.get('arregloSize')\n//Generamos un numero entero aleatorio, desde 0 hasta el tamaño del arreglo\nvar random = Math.floor(Math.random() * (size - 0)) + 0;\n//Obtenemos el tiempo actual y lo dividimos entre 1000 para obtener los segundos\nvar tiempo_salida = Date.now()/1000\n//Al tiempo actual le restamos un numero de segundos aleatorio entre 60 y 600\nvar tiempo_llegada = tiempo_salida - (Math.floor(Math.random()*(600-60))) + 60\n//Generamos una estacion aleatoria desde 400 a 500\nvar estacion = (Math.floor(Math.random()*(500-400))) + 400 \n//Creamos un query que inserte los datos que generamos en la BD \"Horario_ruta\"\nvar query = `INSERT INTO Horario_ruta VALUES (${ID[random]},${estacion}, ${tiempo_llegada}, ${tiempo_salida})`\nmsg.topic = query // Colocamos la query en el msg.topic\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 560,
+        "wires": [
+            [
+                "bf3478f704bba627"
+            ]
+        ]
+    },
+    {
+        "id": "bf3478f704bba627",
+        "type": "mysql",
+        "z": "5accdb4228d7ea1e",
+        "mydb": "dac54363429d7483",
+        "name": "",
+        "x": 580,
+        "y": 640,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e318afb31bbda0a9",
+        "type": "function",
+        "z": "5accdb4228d7ea1e",
+        "name": "",
+        "func": "var ID = flow.get('arregloID')\nvar size = flow.get('arregloSize')\nvar random = Math.floor(Math.random() * (size - 0)) + 0;\n\nvar tiempo_salida = Date.now()/1000\nvar tiempo_llegada = tiempo_salida - (Math.floor(Math.random()*(600-60))) + 60\n\nvar estacion = (Math.floor(Math.random()*(500-400))) + 400 \nvar query = `INSERT INTO Horario_ruta VALUES (${ID[random]},${estacion}, ${tiempo_llegada}, ${tiempo_salida})`\nmsg.topic = query\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 620,
+        "wires": [
+            [
+                "bf3478f704bba627"
+            ]
+        ]
+    },
+    {
+        "id": "0d720b37031807b0",
+        "type": "function",
+        "z": "5accdb4228d7ea1e",
+        "name": "",
+        "func": "var ID = flow.get('arregloID')\nvar size = flow.get('arregloSize')\nvar random = Math.floor(Math.random() * (size - 0)) + 0;\n\nvar tiempo_salida = Date.now()/1000\nvar tiempo_llegada = tiempo_salida - (Math.floor(Math.random()*(600-60))) + 60\n\nvar estacion = (Math.floor(Math.random()*(500-400))) + 400 \nvar query = `INSERT INTO Horario_ruta VALUES (${ID[random]},${estacion}, ${tiempo_llegada}, ${tiempo_salida})`\nmsg.topic = query\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 680,
+        "wires": [
+            [
+                "bf3478f704bba627"
+            ]
+        ]
+    },
+    {
+        "id": "01543c9eb473e4c3",
+        "type": "function",
+        "z": "5accdb4228d7ea1e",
+        "name": "",
+        "func": "var ID = flow.get('arregloID')\nvar size = flow.get('arregloSize')\nvar random = Math.floor(Math.random() * (size - 0)) + 0;\n\nvar tiempo_salida = Date.now()/1000\nvar tiempo_llegada = tiempo_salida - (Math.floor(Math.random()*(600-60))) + 60\n\nvar estacion = (Math.floor(Math.random()*(500-400))) + 400 \nvar query = `INSERT INTO Horario_ruta VALUES (${ID[random]},${estacion}, ${tiempo_llegada}, ${tiempo_salida})`\nmsg.topic = query\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 740,
+        "wires": [
+            [
+                "bf3478f704bba627"
+            ]
+        ]
+    },
+    {
+        "id": "c8d7c632830616f9",
+        "type": "inject",
+        "z": "5accdb4228d7ea1e",
+        "name": "Tres minutos",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "180",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 560,
+        "wires": [
+            [
+                "293636bfe744d953"
+            ]
+        ]
+    },
+    {
+        "id": "7692898db364ec6b",
+        "type": "inject",
+        "z": "5accdb4228d7ea1e",
+        "name": "Cinco minutos",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "300",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 620,
+        "wires": [
+            [
+                "e318afb31bbda0a9"
+            ]
+        ]
+    },
+    {
+        "id": "e5487a3ae6839d40",
+        "type": "inject",
+        "z": "5accdb4228d7ea1e",
+        "name": "Ocho minutos",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "480",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 680,
+        "wires": [
+            [
+                "0d720b37031807b0"
+            ]
+        ]
+    },
+    {
+        "id": "de97357543d57239",
+        "type": "inject",
+        "z": "5accdb4228d7ea1e",
+        "name": "Diez minutos",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "600",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 740,
+        "wires": [
+            [
+                "01543c9eb473e4c3"
+            ]
+        ]
+    },
+    {
+        "id": "2db032631249bd11",
+        "type": "comment",
+        "z": "5accdb4228d7ea1e",
+        "name": "Bloque de simulación.",
+        "info": "Este bloque de simulación inserta datos de manera semi-aleatoria en diferentes invervalos de tiempo. \nLos datos referentes a la información del conductor son extraidos de la base de datos \"DatosGenerales\", por lo que no son generados aleatoriamente, sin emabargo, el orden en el que se publican es aleatorio",
+        "x": 180,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "72505925b2f99c41",
+        "type": "comment",
+        "z": "5accdb4228d7ea1e",
+        "name": "Bloque de recoleeción de estación",
+        "info": "",
+        "x": 180,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "761123287a6579af",
+        "type": "comment",
+        "z": "5accdb4228d7ea1e",
+        "name": "Bloque para refrescar la lista de conductores",
+        "info": "",
+        "x": 190,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "31f7c2e.96d49be",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "3.126.191.185",
+        "port": "1883",
+        "clientid": "victor22-flores22-vargas22",
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "dac54363429d7483",
+        "type": "MySQLdatabase",
+        "name": "",
+        "host": "127.0.0.1",
+        "port": "3306",
+        "db": "sensores",
+        "tz": "",
+        "charset": "UTF8"
+    }
+]
