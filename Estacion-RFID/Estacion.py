@@ -112,15 +112,8 @@ def MedirDistancia():
  
     return distancia
 
-#Funcion que captura e interpreta Ctrl+C en la consola
-def end_read(signal,frame):
-    global KeepGoing
-    print ('FIN DEL PROGRAMA')
-    KeepGoing = False
-    GPIO.cleanup() #Deja libre los pines cuando se termina el programa
-
 #Definimos a la funcion end_read como el final del programa
-signal.signal(signal.SIGINT, end_read)
+
 
 # Conectamos con el broker MQTT (HiveMQ)
 client.connect(BrokerMQTT, 1883, 60)
@@ -128,36 +121,47 @@ client.connect(BrokerMQTT, 1883, 60)
 ## constantemente
 
 #Programa Principal
-while KeepGoing: #Loop principal
 
-    if MedirDistancia() < UmbralDistancia : #Si hay un objeto, entonces
-        (status,TagType) = RFID.MFRC522_Request(RFID.PICC_REQIDL) # Comprobamos si hay una tarjeta
+try:
+    while KeepGoing: #Loop principal
+
+        if MedirDistancia() < UmbralDistancia : #Si hay un objeto, entonces
+            (status,TagType) = RFID.MFRC522_Request(RFID.PICC_REQIDL) # Comprobamos si hay una tarjeta
         
-        if status == RFID.MI_OK: #Si hay una tarjeta valida, entonces
-            print('Tarjeta encontrada') 
-            (status,uid) = RFID.MFRC522_Anticoll() #Tratamos de obtener el UID de la tarjeta
+            if status == RFID.MI_OK: #Si hay una tarjeta valida, entonces
+                print('Tarjeta encontrada') 
+                (status,uid) = RFID.MFRC522_Anticoll() #Tratamos de obtener el UID de la tarjeta
             
-            if status == RFID.MI_OK: #Si pudimos obtener el UID de la tarjeta, entonces
-                id = str(uid[0]) + str(uid[1]) + str(uid[2]) + str(uid[3]) #Guardamos el UID en una variable
+                if status == RFID.MI_OK: #Si pudimos obtener el UID de la tarjeta, entonces
+                    id = str(uid[0]) + str(uid[1]) + str(uid[2]) + str(uid[3]) #Guardamos el UID en una variable
                 
-                if BufferID != id: # Si la UID que guardamos es diferente a la registrada anteriormente, entonces
-                    BanderaRegistro = True # Activamos la bandera que indica que ya se registro esa UID
-                    BufferID = id # Guardamos en el buffer la nueva ID
-                    InfoAutobus.h_entrada= time.time() # Obtenemos la hora de entrada y la guardamos
-                    InfoAutobus.id_autobus = id # Guardamos la UID en el objeto
+                    if BufferID != id: # Si la UID que guardamos es diferente a la registrada anteriormente, entonces
+                        BanderaRegistro = True # Activamos la bandera que indica que ya se registro esa UID
+                        BufferID = id # Guardamos en el buffer la nueva ID
+                        InfoAutobus.h_entrada= time.time() # Obtenemos la hora de entrada y la guardamos
+                        InfoAutobus.id_autobus = id # Guardamos la UID en el objeto
                 
-                else: # Si la UID es igual a la del buffer...
-                    print('Misma tarjeta. Intente de nuevo')
-                    time.sleep(2) # Pausa bloqueante necesaria (2 segundos)
+                    else: # Si la UID es igual a la del buffer...
+                        print('Misma tarjeta. Intente de nuevo')
+                        time.sleep(2) # Pausa bloqueante necesaria (2 segundos)
     
-    elif MedirDistancia() > UmbralDistancia and BanderaRegistro == True : #Si no hay objeto y ya se ha registrado una tarjeta
-        BanderaRegistro = False # No se ha registrado una UID
-        InfoAutobus.h_salida = time.time() # Guardamos la hora de salida del autobus
-        BufferJson = jsonpickle.encode(InfoAutobus, unpicklable=False) # Guardamos en un Buffer el JSON generado
-        print(BufferJson) # Verificamos por terminal el JSON generado
-        client.publish('raspb/autobuses', BufferJson) # Publicamos el JSON en un tema de MQTT.
+        elif MedirDistancia() > UmbralDistancia and BanderaRegistro == True : #Si no hay objeto y ya se ha registrado una tarjeta
+            BanderaRegistro = False # No se ha registrado una UID
+            InfoAutobus.h_salida = time.time() # Guardamos la hora de salida del autobus
+            BufferJson = jsonpickle.encode(InfoAutobus, unpicklable=False) # Guardamos en un Buffer el JSON generado
+            print(BufferJson) # Verificamos por terminal el JSON generado
+            client.publish('raspb/autobuses', BufferJson) # Publicamos el JSON en un tema de MQTT.
 
 #Fin del programa principal.
+
+#Ctrl+C para detener la ejecucion
+except KeyboardInterrupt:
+    print('Programa detenido')
+
+#Deja libre el GPIO
+finally:
+    GPIO.cleanup()
+
 
 
 

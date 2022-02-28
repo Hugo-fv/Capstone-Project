@@ -37,11 +37,17 @@ def MedirDistancia():
  
     return distancia
 
+try: 
+    while True:
 
-while True:
+        distancia = MedirDistancia()
+        print('Distancia [cm]: %.2f' %distancia)
+        time.sleep(5)
 
-    distancia = MedirDistancia()
+except KeyboardInterrupt:
 
-    print('Distancia [cm]: %.2f' %distancia)
-    time.sleep(5)
+    print('Programa detenido')
+
+finally:
+    GPIO.cleanup()
 
