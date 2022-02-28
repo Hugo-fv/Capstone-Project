@@ -129,20 +129,21 @@ try:
             (status,TagType) = RFID.MFRC522_Request(RFID.PICC_REQIDL) # Comprobamos si hay una tarjeta
         
             if status == RFID.MI_OK: #Si hay una tarjeta valida, entonces
-                print('Tarjeta encontrada') 
+                print('TARJETA VALIDA ENCONTRADA') 
                 (status,uid) = RFID.MFRC522_Anticoll() #Tratamos de obtener el UID de la tarjeta
             
                 if status == RFID.MI_OK: #Si pudimos obtener el UID de la tarjeta, entonces
                     id = str(uid[0]) + str(uid[1]) + str(uid[2]) + str(uid[3]) #Guardamos el UID en una variable
                 
                     if BufferID != id: # Si la UID que guardamos es diferente a la registrada anteriormente, entonces
+                        print('NUEVA TARJETA. Guardando informacion')
                         BanderaRegistro = True # Activamos la bandera que indica que ya se registro esa UID
                         BufferID = id # Guardamos en el buffer la nueva ID
                         InfoAutobus.h_entrada= time.time() # Obtenemos la hora de entrada y la guardamos
                         InfoAutobus.id_autobus = id # Guardamos la UID en el objeto
                 
                     else: # Si la UID es igual a la del buffer...
-                        print('Misma tarjeta. Intente de nuevo')
+                        print('MISMA TARJETA. Reintentando...')
                         time.sleep(2) # Pausa bloqueante necesaria (2 segundos)
     
         elif MedirDistancia() > UmbralDistancia and BanderaRegistro == True : #Si no hay objeto y ya se ha registrado una tarjeta
