@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Etiquetas meta-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!--Uso de BoxIcons-->
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    
+    <!--Regular Datatables CSS-->
+    <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
+    <!--Responsive Extension Datatables CSS-->
+    <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet">	 
+    <link rel="stylesheet" href="style.css">  
+
+    <title>CRUD</title>
+  </head>
+  <body class = "bg-dark text-white">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/"><i class='bx bxs-bus bx-lg'></i>Autobuses del Norte</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">Inicio</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/crud">Conductores</a>
+              </li>
+              
+              <li class="nav-item">
+                <a class="nav-link" href="/registro" aria-current="page">Registro</a>
+              </li>
+
+              <li class="nav-item">
+                <a class = "nav-link" href = "https://github.com/Hugo-fv/Capstone-Project" aria-current="page"><i class='bx bxl-github bx-sm'></i></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+		 		
+        <div class ="text-white">
+				<table id="tabla" class = "table table-dark table-striped text-center">
+					<thead>
+                        <tr class="bg-primary text-white">
+                            <th data-priority="1">IDCamion</th>
+                            <th data-priority="2">Conductor</th>
+                            <th data-priority="3">Unidad</th>
+                            <th data-priority="4">Estacion</th>
+                            <th data-priority="5">HoraEntrada</th>
+                            <th data-priority="6">HoraSalida</th>
+                            <th data-priority="7">Fecha</th>
+                        </tr>
+					</thead>
+					<tbody>
+					</tbody>					
+				</table>				
+			</div>	
+      </div>
+      </div>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+      <!--Datatables -->
+      <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+      <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+    
+        <script>
+            $(document).ready(function(){
+                const url = 'http://localhost:3000/api/users';
+                $('#tabla').DataTable({
+                    ajax:{
+                        url:url,
+                        dataSrc:''
+                    },
+                    columns:[
+                        {data: "idCamion"},
+                        {data: "Conductor"},
+                        {data: "Unidad"},
+                        {data: "Estacion"},
+                        {data: "HoraEntrada"},
+                        {data: "HoraSalida"},
+                        {data: "Fecha"}
+                    ],
+                    responsive: true
+                }).columns.adjust()
+                .responsive.recalc();
+            })
+        </script>
+    </body>
+    </html>
+
