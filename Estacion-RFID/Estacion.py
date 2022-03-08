@@ -63,7 +63,7 @@ class Autobus (): #Clase vacia que se puede serializar como JSON
     pass
 
 InfoAutobus = Autobus() #Variable de tipo Autobus
-InfoAutobus.id_estacion = 510 #La estacion es constante
+InfoAutobus.id_estacion = 10 #La estacion es constante
 
 #Variables
 
@@ -71,8 +71,8 @@ BufferID = '' #Buffer para guardar temporalmente la id de la RFID. Comienza vaci
 BanderaRegistro = False #Bandera que indica si ya se verifico la tarjeta
 KeepGoing = True #Variable que controla el bucle principal
 BufferJson = '' #Buffer que almacena el JSON antes de mandarlo por MQTT
-BrokerMQTT = "3.126.191.185"
-UmbralDistancia = 7.0 #Distancia maxima (cm) para decir si hay un objeto delante del sensor
+BrokerMQTT = "18.197.171.34"
+UmbralDistancia = 17.0 #Distancia maxima (cm) para decir si hay un objeto delante del sensor
 
 ##Variables del sensor Ultrasonico
 
@@ -122,9 +122,10 @@ client.connect(BrokerMQTT, 1883, 60)
 
 #Programa Principal
 
+print ('Programa iniciado. Esperando tarjetas.')
 try:
     while KeepGoing: #Loop principal
-
+	client.loop_start() #Reconecta el cliente MQTT si se ha desconectado
         if MedirDistancia() < UmbralDistancia : #Si hay un objeto, entonces
             (status,TagType) = RFID.MFRC522_Request(RFID.PICC_REQIDL) # Comprobamos si hay una tarjeta
         
@@ -133,7 +134,7 @@ try:
                 (status,uid) = RFID.MFRC522_Anticoll() #Tratamos de obtener el UID de la tarjeta
             
                 if status == RFID.MI_OK: #Si pudimos obtener el UID de la tarjeta, entonces
-                    id = str(uid[0]) + str(uid[1]) + str(uid[2]) + str(uid[3]) #Guardamos el UID en una variable
+                    id = str(uid[0]) + str(uid[1]) + str(uid[2])# + str(uid[3]) #Guardamos el UID en una variable
                 
                     if BufferID != id: # Si la UID que guardamos es diferente a la registrada anteriormente, entonces
                         print('NUEVA TARJETA. Guardando informacion')
@@ -161,7 +162,9 @@ except KeyboardInterrupt:
 
 #Deja libre el GPIO
 finally:
-    GPIO.cleanup()
+    client.loop_stop() #Detiene la conexión con el Broker
+    GPIO.cleanup() #Limpia el GPIO
+
 
 
 
