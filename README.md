@@ -40,3 +40,16 @@ La organización de carpetas se divide en los elementos que están programados p
 ## Transito de la información.
 El siguiente diagrama representa el transito de la información que realiza el sistema para almacenarse en la BD.
 ![Transito de la información](https://github.com/Hugo-fv/Capstone-Project/blob/main/Imagenes/transito-info.png)
+Se puede observar que ambos sistemas alimentan a la base de datos de la información mas relevante. En el caso de la estación, conocemos el UID (identificador único) del autobús que ingresó, su hora de entrada y su hora de salida, y la ID de la estación que envía el dato; mientras que, en el sistema de conteo de pasajeros envía a la BD el numero de pasajeros, el UID del autobús y la hora de envío.
+
+## Créditos.
+
+ - [Victor Hugo Flores Vargas](https://github.com/Hugo-fv) por programar el sistema de estación y la página web, así como contribuir a la documentación del proyecto..
+ - [Rogelio Emmanuel López](https://github.com/roger304) por programar el sistema de conteo de pasajeros y contribuir a la documentación del proyecto.
+ - [Hugo Escalpelo](https://github.com/hugoescalpelo) por brindarnos asesoramiento para la realización de este proyecto.
+ - [Codigo-IoT](https://github.com/codigo-iot) por gestionar el diplomado al que pertenece este proyecto.
+
+## Enlaces externos.
+
+ - [Curso de este proyecto.](https://edu.codigoiot.com/course/view.php?id=869)
+ - Vídeo de demostración de funcionamiento.
