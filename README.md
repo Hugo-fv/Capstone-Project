@@ -33,4 +33,10 @@ La organización de carpetas se divide en los elementos que están programados p
 	 - **Contador-Infrarrojo**: El script "infrarrojo. py" permite monitorizar el numero de pasajeros que ingresa al autobus, para enviar esta información por internet.
 
 -	Carpetas para la máquina virtual.
-	-	**Databases**: Ayuda a 
+	-	**Databases**: Contiene una base de datos tipo SQL con tablas que contienen datos de ejemplo. 
+	-	**Flows**: Contiene los *flows* de Node-RED que permiten una recepción de la información enviada por las estaciones y los autobuses. Además, incluye una simulación de entrada de datos.
+	-	**Web-Server**: Contiene los archivos necesarios para visualizar una página web que permite una mejor visualización de los datos. Hace uso de *NodeJS y Express* para realizar una API-RESTful, y el gestor de plantillas *EJS*.
+
+## Transito de la información.
+El siguiente diagrama representa el transito de la información que realiza el sistema para almacenarse en la BD.
+![Transito de la información](https://github.com/Hugo-fv/Capstone-Project/blob/main/Imagenes/transito-info.png)
