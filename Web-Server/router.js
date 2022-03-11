@@ -57,9 +57,21 @@ router.get('/prueba', (req,res)=>{
 
 router.get('/registro', (req,res)=>{
     res.render('registro');
-})
+});
 
+router.get('/people', (req,res)=>{
+    conexion.query('SELECT US.uid, US.nombre, US.n_camion, PS.pasajeros, DATE_FORMAT(FROM_UNIXTIME(hora), "%H:%i") AS Hora, DATE_FORMAT(FROM_UNIXTIME(hora), "%d-%m-%Y") AS Fecha  FROM users US JOIN pasajeros PS ON PS.uid = US.uid', (error, results)=>{
+        if (error){
+            throw error;
+        }else{
+            res.send(results);
+        }
+    });
+});
 
+router.get('/pasajeros', (req,res)=>{
+    res.render('pasajeros');
+});
 
 const crud = require('./controllers/crud');
 const res = require('express/lib/response');
