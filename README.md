@@ -52,4 +52,4 @@ Se puede observar que ambos sistemas alimentan a la base de datos de la informac
 ## Enlaces externos.
 
  - [Curso de este proyecto.](https://edu.codigoiot.com/course/view.php?id=869)
- - Vídeo de demostración de funcionamiento.
+ - [Vídeo de demostración de funcionamiento.](https://www.youtube.com/watch?v=ZtpOnZYtp7Q)
