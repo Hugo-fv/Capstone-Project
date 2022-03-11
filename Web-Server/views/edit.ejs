@@ -1,3 +1,5 @@
+<!--Plantilla EJS para editar registros existentes-->
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -12,6 +14,8 @@
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
     <title>CRUD</title>
   </head>
+
+  <!--Barra de navegacion presente en todas las paginas-->
   <body class = "bg-dark">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
@@ -27,6 +31,7 @@
       </div>
     </nav>
 
+    <!--Formulario y envio de los datos para editar registros-->
     <% if(user) { %>
 
       <div class="container mt-4">     
@@ -37,7 +42,7 @@
                     <input id = "id" name = "id" value="<%= user.id %>" hidden>
                     <div class="mb-3">
                         <label for="user" class="form-label">UID</label>
-                        <input type="number" class="form-control" id="user" name="user" tabindex="1" min="13000" max="20000" value="<%= user.uid %>">
+                        <input type="number" class="form-control" id="user" name="user" tabindex="1" value="<%= user.uid %>">
                     </div>   
                     <div class="mb-3">
                         <label for="user" class="form-label">Nombre</label>
@@ -45,7 +50,7 @@
                     </div>
                     <div class = "mb-3">
                         <label for="user" class="form-label">Unidad</label>
-                        <input type="number" class="form-control" id="unidad" name = "unidad" tabindex="3" min="200" max="800" value="<%= user.n_camion %>">
+                        <input type="number" class="form-control" id="unidad" name = "unidad" tabindex="3" min="400" max="800" value="<%= user.n_camion %>">
                     </div>                              
                     <button type="submit" class="btn btn-primary" tabindex="5">Guardar</button>
                     <a href="/crud" class="btn btn-secondary">Cancelar</a>

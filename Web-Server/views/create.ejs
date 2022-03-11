@@ -1,3 +1,5 @@
+<!--Plantilla para manejar el menú de creación de registros-->
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -10,8 +12,10 @@
 
     <!--Uso de BoxIcons-->
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
-    <title>CRUD</title>
+    <title>Registro general</title>
   </head>
+
+  <!--Barra de navegación presente en todas las paginas-->
   <body class = "bg-dark">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
@@ -27,7 +31,7 @@
       </div>
     </nav>
 
-
+<!--Formulario que permite al usuario registrar nuevos usuarios-->
       <div class="container mt-4">     
         <div class="card border-secondary">  
             <div class="card-header">Nuevo Registro</div>
@@ -35,7 +39,7 @@
                 <form action="/save" method="POST">
                     <div class="mb-3">
                         <label for="user" class="form-label">UID</label>
-                        <input type="number" class="form-control" id="user" name="user" tabindex="1" min="13000" max="20000">
+                        <input type="number" class="form-control" id="user" name="user" tabindex="1" >
                     </div>   
                     <div class="mb-3">
                         <label for="user" class="form-label">Nombre</label>

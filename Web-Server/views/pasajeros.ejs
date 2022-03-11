@@ -9,51 +9,51 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.1/css/bootstrap.min.css" rel="sylesheet">
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <title>Registro</title>
+    <title>Pasajeros</title>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="/"><i class='bx bxs-bus bx-lg'></i>Autobuses del Norte</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/">Inicio</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/crud">Conductores</a>
-            </li>
-            
-            <li class="nav-item">
-              <a class="nav-link" href="/registro" aria-current="page">Registro</a>
-            </li>
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/"><i class='bx bxs-bus bx-lg'></i>Autobuses del Norte</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">Inicio</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/crud">Conductores</a>
+              </li>
+              
+              <li class="nav-item">
+                <a class="nav-link" href="/registro" aria-current="page">Registro</a>
+              </li>
 
-            <li class="nav-item">
-              <a class="nav-link" href="/pasajeros" aria-current="page">Pasajeros</a>
-            </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/pasajeros" aria-current="page">Pasajeros</a>
+              </li>
 
-            <li class="nav-item">
-              <a class = "nav-link" href = "https://github.com/Hugo-fv/Capstone-Project" aria-current="page"><i class='bx bxl-github bx-sm'></i></a>
-            </li>
-          </ul>
+              <li class="nav-item">
+                <a class = "nav-link" href = "https://github.com/Hugo-fv/Capstone-Project" aria-current="page"><i class='bx bxl-github bx-sm'></i></a>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
     
     <body class="bg-dark">
     <div class="container w-full md:w-4/5 xl:w-3/5  mx-auto px-2">
-      <h1 class=" display-6 text-center text-white">Historial de entradas y salidas</h1>
+        <h1 class=" display-6 text-center text-white">Historial de pasajeros.</h1>
         <table id="tabla" class="table table-dark table-striped">
             <thead>
                 <tr>
                     <th class="all" data-priority="1">UID</th>
                     <th class="all" data-priority="2">Conductor</th>
                     <th class="min-desktop" data-priority="3">Unidad</th>
-                    <th class="min-desktop" data-priority="4">Estacion</th>
-                    <th class="min-desktop" data-priority="5">Entrada</th>
-                    <th class="min-desktop" data-priority="6">Salida</th>
-                    <th class="all" data-priority="7">Fecha</th>
+                    <th class="min-desktop" data-priority="4">Pasajeros</th>
+                    <th class="desktop" data-priority="5">Hora</th>
+                    <th class="desktop" data-priority="6">Fecha</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -72,7 +72,7 @@
 
   <script>
     $(document).ready(function(){
-        const url = 'http://localhost:5000/prueba';
+        const url = 'http://localhost:5000/people';
         $('#tabla').DataTable({
             ajax:{
                 url:url,
@@ -80,11 +80,10 @@
             },
             columns:[
                 {data: "uid"},
-                {data: "nombre"},
+                {data:"nombre"},
                 {data: "n_camion"},
-                {data: "id_estacion"},
-                {data: "Entrada"},
-                {data: "Salida"},
+                {data: "pasajeros"},
+                {data: "Hora"},
                 {data: "Fecha"}
             ],
             "language":{
@@ -109,10 +108,6 @@
 }
 .dataTables_info {
     color:white;
-}
-
-.page-link {
-    color: rgb(36, 34, 34);
 }
 
 </style>
